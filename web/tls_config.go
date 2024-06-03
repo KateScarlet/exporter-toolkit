@@ -281,8 +281,8 @@ func ServeMultiple(listeners []net.Listener, server *http.Server, flags *FlagCon
 	for _, l := range listeners {
 		l := l
 		m := cmux.New(l)
+		grpcL := m.Match(cmux.HTTP1HeaderField("content-type", "application/grpc"))
 		httpL := m.Match(cmux.HTTP1Fast())
-		grpcL := m.Match(cmux.HTTP2HeaderField("content-type", "application/grpc"))
 		grpcServer := grpc.NewServer()
 		pb.RegisterHelloServer(grpcServer, &HelloServer{})
 		go grpcServer.Serve(grpcL)

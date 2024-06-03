@@ -14,10 +14,12 @@
 package web
 
 import (
+	"context"
 	"crypto/tls"
 	"crypto/x509"
 	"errors"
 	"fmt"
+	"github.com/KateScarlet/exporter-toolkit/pb"
 	"net"
 	"net/http"
 	"os"
@@ -263,6 +265,15 @@ func ConfigToTLSConfig(c *TLSConfig) (*tls.Config, error) {
 	return cfg, nil
 }
 
+type HelloServer struct {
+	pb.UnimplementedHelloServer
+}
+
+func (s *HelloServer) Say(ctx context.Context, req *pb.SayRequest) (*pb.SayResponse, error) {
+	fmt.Println("request:", req.Name)
+	return &pb.SayResponse{Message: "Hello " + req.Name}, nil
+}
+
 // ServeMultiple starts the server on the given listeners. The FlagConfig is
 // also passed on to Serve.
 func ServeMultiple(listeners []net.Listener, server *http.Server, flags *FlagConfig, logger log.Logger) error {
@@ -273,6 +284,7 @@ func ServeMultiple(listeners []net.Listener, server *http.Server, flags *FlagCon
 		httpL := m.Match(cmux.HTTP1Fast())
 		grpcL := m.Match(cmux.HTTP2HeaderField("content-type", "application/grpc"))
 		grpcServer := grpc.NewServer()
+		pb.RegisterHelloServer(grpcServer, &HelloServer{})
 		go grpcServer.Serve(grpcL)
 		errs.Go(func() error {
 			return Serve(httpL, server, flags, logger)

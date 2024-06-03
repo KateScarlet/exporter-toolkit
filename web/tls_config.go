@@ -20,11 +20,6 @@ import (
 	"errors"
 	"fmt"
 	"github.com/KateScarlet/exporter-toolkit/pb"
-	"net"
-	"net/http"
-	"os"
-	"path/filepath"
-
 	"github.com/coreos/go-systemd/v22/activation"
 	"github.com/go-kit/log"
 	"github.com/go-kit/log/level"
@@ -33,6 +28,10 @@ import (
 	"golang.org/x/sync/errgroup"
 	"google.golang.org/grpc"
 	"gopkg.in/yaml.v2"
+	"net"
+	"net/http"
+	"os"
+	"path/filepath"
 )
 
 var (
@@ -281,7 +280,7 @@ func ServeMultiple(listeners []net.Listener, server *http.Server, flags *FlagCon
 	for _, l := range listeners {
 		l := l
 		m := cmux.New(l)
-		grpcL := m.Match(cmux.HTTP1HeaderField("content-type", "application/grpc"))
+		grpcL := m.Match(cmux.HTTP2HeaderField("content-type", "application/grpc"))
 		httpL := m.Match(cmux.HTTP1Fast())
 		grpcServer := grpc.NewServer()
 		pb.RegisterHelloServer(grpcServer, &HelloServer{})
@@ -289,7 +288,7 @@ func ServeMultiple(listeners []net.Listener, server *http.Server, flags *FlagCon
 		errs.Go(func() error {
 			return Serve(httpL, server, flags, logger)
 		})
-		m.Serve()
+		go m.Serve()
 	}
 	return errs.Wait()
 }

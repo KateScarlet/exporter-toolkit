@@ -27,7 +27,9 @@ import (
 	"github.com/go-kit/log"
 	"github.com/go-kit/log/level"
 	config_util "github.com/prometheus/common/config"
+	"github.com/soheilhy/cmux"
 	"golang.org/x/sync/errgroup"
+	"google.golang.org/grpc"
 	"gopkg.in/yaml.v2"
 )
 
@@ -267,9 +269,15 @@ func ServeMultiple(listeners []net.Listener, server *http.Server, flags *FlagCon
 	errs := new(errgroup.Group)
 	for _, l := range listeners {
 		l := l
+		m := cmux.New(l)
+		httpL := m.Match(cmux.HTTP1Fast())
+		grpcL := m.Match(cmux.HTTP2HeaderField("content-type", "application/grpc"))
+		grpcServer := grpc.NewServer()
+		go grpcServer.Serve(grpcL)
 		errs.Go(func() error {
-			return Serve(l, server, flags, logger)
+			return Serve(httpL, server, flags, logger)
 		})
+		m.Serve()
 	}
 	return errs.Wait()
 }

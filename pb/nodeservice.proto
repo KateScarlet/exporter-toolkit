@@ -4,7 +4,7 @@ option go_package="/pb";
 
 package pb;
 
-service NodeService {
+service FileService {
   rpc UploadFile(stream UploadFileRequest) returns (UploadFileStatus);
   rpc DownloadFile(DownloadFileRequest) returns (stream DownloadFileStatus);
 }
@@ -23,5 +23,18 @@ message DownloadFileRequest {
 }
 
 message DownloadFileStatus {
-  int32 Status = 1;
+  bytes Content = 1;
+  string Hash = 2;
+}
+
+service ShellService {
+  rpc StartShell(stream CommandRequest) returns (stream CommandResponse);
+}
+
+message CommandRequest {
+  string command = 1;
+}
+
+message CommandResponse {
+  string output = 1;
 }

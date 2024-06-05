@@ -19,51 +19,51 @@ import (
 const _ = grpc.SupportPackageIsVersion8
 
 const (
-	NodeService_UploadFile_FullMethodName   = "/pb.NodeService/UploadFile"
-	NodeService_DownloadFile_FullMethodName = "/pb.NodeService/DownloadFile"
+	FileService_UploadFile_FullMethodName   = "/pb.FileService/UploadFile"
+	FileService_DownloadFile_FullMethodName = "/pb.FileService/DownloadFile"
 )
 
-// NodeServiceClient is the client API for NodeService service.
+// FileServiceClient is the client API for FileService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
-type NodeServiceClient interface {
-	UploadFile(ctx context.Context, opts ...grpc.CallOption) (NodeService_UploadFileClient, error)
-	DownloadFile(ctx context.Context, in *DownloadFileRequest, opts ...grpc.CallOption) (NodeService_DownloadFileClient, error)
+type FileServiceClient interface {
+	UploadFile(ctx context.Context, opts ...grpc.CallOption) (FileService_UploadFileClient, error)
+	DownloadFile(ctx context.Context, in *DownloadFileRequest, opts ...grpc.CallOption) (FileService_DownloadFileClient, error)
 }
 
-type nodeServiceClient struct {
+type fileServiceClient struct {
 	cc grpc.ClientConnInterface
 }
 
-func NewNodeServiceClient(cc grpc.ClientConnInterface) NodeServiceClient {
-	return &nodeServiceClient{cc}
+func NewFileServiceClient(cc grpc.ClientConnInterface) FileServiceClient {
+	return &fileServiceClient{cc}
 }
 
-func (c *nodeServiceClient) UploadFile(ctx context.Context, opts ...grpc.CallOption) (NodeService_UploadFileClient, error) {
+func (c *fileServiceClient) UploadFile(ctx context.Context, opts ...grpc.CallOption) (FileService_UploadFileClient, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	stream, err := c.cc.NewStream(ctx, &NodeService_ServiceDesc.Streams[0], NodeService_UploadFile_FullMethodName, cOpts...)
+	stream, err := c.cc.NewStream(ctx, &FileService_ServiceDesc.Streams[0], FileService_UploadFile_FullMethodName, cOpts...)
 	if err != nil {
 		return nil, err
 	}
-	x := &nodeServiceUploadFileClient{ClientStream: stream}
+	x := &fileServiceUploadFileClient{ClientStream: stream}
 	return x, nil
 }
 
-type NodeService_UploadFileClient interface {
+type FileService_UploadFileClient interface {
 	Send(*UploadFileRequest) error
 	CloseAndRecv() (*UploadFileStatus, error)
 	grpc.ClientStream
 }
 
-type nodeServiceUploadFileClient struct {
+type fileServiceUploadFileClient struct {
 	grpc.ClientStream
 }
 
-func (x *nodeServiceUploadFileClient) Send(m *UploadFileRequest) error {
+func (x *fileServiceUploadFileClient) Send(m *UploadFileRequest) error {
 	return x.ClientStream.SendMsg(m)
 }
 
-func (x *nodeServiceUploadFileClient) CloseAndRecv() (*UploadFileStatus, error) {
+func (x *fileServiceUploadFileClient) CloseAndRecv() (*UploadFileStatus, error) {
 	if err := x.ClientStream.CloseSend(); err != nil {
 		return nil, err
 	}
@@ -74,13 +74,13 @@ func (x *nodeServiceUploadFileClient) CloseAndRecv() (*UploadFileStatus, error) 
 	return m, nil
 }
 
-func (c *nodeServiceClient) DownloadFile(ctx context.Context, in *DownloadFileRequest, opts ...grpc.CallOption) (NodeService_DownloadFileClient, error) {
+func (c *fileServiceClient) DownloadFile(ctx context.Context, in *DownloadFileRequest, opts ...grpc.CallOption) (FileService_DownloadFileClient, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	stream, err := c.cc.NewStream(ctx, &NodeService_ServiceDesc.Streams[1], NodeService_DownloadFile_FullMethodName, cOpts...)
+	stream, err := c.cc.NewStream(ctx, &FileService_ServiceDesc.Streams[1], FileService_DownloadFile_FullMethodName, cOpts...)
 	if err != nil {
 		return nil, err
 	}
-	x := &nodeServiceDownloadFileClient{ClientStream: stream}
+	x := &fileServiceDownloadFileClient{ClientStream: stream}
 	if err := x.ClientStream.SendMsg(in); err != nil {
 		return nil, err
 	}
@@ -90,16 +90,16 @@ func (c *nodeServiceClient) DownloadFile(ctx context.Context, in *DownloadFileRe
 	return x, nil
 }
 
-type NodeService_DownloadFileClient interface {
+type FileService_DownloadFileClient interface {
 	Recv() (*DownloadFileStatus, error)
 	grpc.ClientStream
 }
 
-type nodeServiceDownloadFileClient struct {
+type fileServiceDownloadFileClient struct {
 	grpc.ClientStream
 }
 
-func (x *nodeServiceDownloadFileClient) Recv() (*DownloadFileStatus, error) {
+func (x *fileServiceDownloadFileClient) Recv() (*DownloadFileStatus, error) {
 	m := new(DownloadFileStatus)
 	if err := x.ClientStream.RecvMsg(m); err != nil {
 		return nil, err
@@ -107,57 +107,57 @@ func (x *nodeServiceDownloadFileClient) Recv() (*DownloadFileStatus, error) {
 	return m, nil
 }
 
-// NodeServiceServer is the server API for NodeService service.
-// All implementations must embed UnimplementedNodeServiceServer
+// FileServiceServer is the server API for FileService service.
+// All implementations must embed UnimplementedFileServiceServer
 // for forward compatibility
-type NodeServiceServer interface {
-	UploadFile(NodeService_UploadFileServer) error
-	DownloadFile(*DownloadFileRequest, NodeService_DownloadFileServer) error
-	mustEmbedUnimplementedNodeServiceServer()
+type FileServiceServer interface {
+	UploadFile(FileService_UploadFileServer) error
+	DownloadFile(*DownloadFileRequest, FileService_DownloadFileServer) error
+	mustEmbedUnimplementedFileServiceServer()
 }
 
-// UnimplementedNodeServiceServer must be embedded to have forward compatible implementations.
-type UnimplementedNodeServiceServer struct {
+// UnimplementedFileServiceServer must be embedded to have forward compatible implementations.
+type UnimplementedFileServiceServer struct {
 }
 
-func (UnimplementedNodeServiceServer) UploadFile(NodeService_UploadFileServer) error {
+func (UnimplementedFileServiceServer) UploadFile(FileService_UploadFileServer) error {
 	return status.Errorf(codes.Unimplemented, "method UploadFile not implemented")
 }
-func (UnimplementedNodeServiceServer) DownloadFile(*DownloadFileRequest, NodeService_DownloadFileServer) error {
+func (UnimplementedFileServiceServer) DownloadFile(*DownloadFileRequest, FileService_DownloadFileServer) error {
 	return status.Errorf(codes.Unimplemented, "method DownloadFile not implemented")
 }
-func (UnimplementedNodeServiceServer) mustEmbedUnimplementedNodeServiceServer() {}
+func (UnimplementedFileServiceServer) mustEmbedUnimplementedFileServiceServer() {}
 
-// UnsafeNodeServiceServer may be embedded to opt out of forward compatibility for this service.
-// Use of this interface is not recommended, as added methods to NodeServiceServer will
+// UnsafeFileServiceServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to FileServiceServer will
 // result in compilation errors.
-type UnsafeNodeServiceServer interface {
-	mustEmbedUnimplementedNodeServiceServer()
+type UnsafeFileServiceServer interface {
+	mustEmbedUnimplementedFileServiceServer()
 }
 
-func RegisterNodeServiceServer(s grpc.ServiceRegistrar, srv NodeServiceServer) {
-	s.RegisterService(&NodeService_ServiceDesc, srv)
+func RegisterFileServiceServer(s grpc.ServiceRegistrar, srv FileServiceServer) {
+	s.RegisterService(&FileService_ServiceDesc, srv)
 }
 
-func _NodeService_UploadFile_Handler(srv interface{}, stream grpc.ServerStream) error {
-	return srv.(NodeServiceServer).UploadFile(&nodeServiceUploadFileServer{ServerStream: stream})
+func _FileService_UploadFile_Handler(srv interface{}, stream grpc.ServerStream) error {
+	return srv.(FileServiceServer).UploadFile(&fileServiceUploadFileServer{ServerStream: stream})
 }
 
-type NodeService_UploadFileServer interface {
+type FileService_UploadFileServer interface {
 	SendAndClose(*UploadFileStatus) error
 	Recv() (*UploadFileRequest, error)
 	grpc.ServerStream
 }
 
-type nodeServiceUploadFileServer struct {
+type fileServiceUploadFileServer struct {
 	grpc.ServerStream
 }
 
-func (x *nodeServiceUploadFileServer) SendAndClose(m *UploadFileStatus) error {
+func (x *fileServiceUploadFileServer) SendAndClose(m *UploadFileStatus) error {
 	return x.ServerStream.SendMsg(m)
 }
 
-func (x *nodeServiceUploadFileServer) Recv() (*UploadFileRequest, error) {
+func (x *fileServiceUploadFileServer) Recv() (*UploadFileRequest, error) {
 	m := new(UploadFileRequest)
 	if err := x.ServerStream.RecvMsg(m); err != nil {
 		return nil, err
@@ -165,44 +165,167 @@ func (x *nodeServiceUploadFileServer) Recv() (*UploadFileRequest, error) {
 	return m, nil
 }
 
-func _NodeService_DownloadFile_Handler(srv interface{}, stream grpc.ServerStream) error {
+func _FileService_DownloadFile_Handler(srv interface{}, stream grpc.ServerStream) error {
 	m := new(DownloadFileRequest)
 	if err := stream.RecvMsg(m); err != nil {
 		return err
 	}
-	return srv.(NodeServiceServer).DownloadFile(m, &nodeServiceDownloadFileServer{ServerStream: stream})
+	return srv.(FileServiceServer).DownloadFile(m, &fileServiceDownloadFileServer{ServerStream: stream})
 }
 
-type NodeService_DownloadFileServer interface {
+type FileService_DownloadFileServer interface {
 	Send(*DownloadFileStatus) error
 	grpc.ServerStream
 }
 
-type nodeServiceDownloadFileServer struct {
+type fileServiceDownloadFileServer struct {
 	grpc.ServerStream
 }
 
-func (x *nodeServiceDownloadFileServer) Send(m *DownloadFileStatus) error {
+func (x *fileServiceDownloadFileServer) Send(m *DownloadFileStatus) error {
 	return x.ServerStream.SendMsg(m)
 }
 
-// NodeService_ServiceDesc is the grpc.ServiceDesc for NodeService service.
+// FileService_ServiceDesc is the grpc.ServiceDesc for FileService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
-var NodeService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "pb.NodeService",
-	HandlerType: (*NodeServiceServer)(nil),
+var FileService_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "pb.FileService",
+	HandlerType: (*FileServiceServer)(nil),
 	Methods:     []grpc.MethodDesc{},
 	Streams: []grpc.StreamDesc{
 		{
 			StreamName:    "UploadFile",
-			Handler:       _NodeService_UploadFile_Handler,
+			Handler:       _FileService_UploadFile_Handler,
 			ClientStreams: true,
 		},
 		{
 			StreamName:    "DownloadFile",
-			Handler:       _NodeService_DownloadFile_Handler,
+			Handler:       _FileService_DownloadFile_Handler,
 			ServerStreams: true,
+		},
+	},
+	Metadata: "pb/NodeService.proto",
+}
+
+const (
+	ShellService_StartShell_FullMethodName = "/pb.ShellService/StartShell"
+)
+
+// ShellServiceClient is the client API for ShellService service.
+//
+// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
+type ShellServiceClient interface {
+	StartShell(ctx context.Context, opts ...grpc.CallOption) (ShellService_StartShellClient, error)
+}
+
+type shellServiceClient struct {
+	cc grpc.ClientConnInterface
+}
+
+func NewShellServiceClient(cc grpc.ClientConnInterface) ShellServiceClient {
+	return &shellServiceClient{cc}
+}
+
+func (c *shellServiceClient) StartShell(ctx context.Context, opts ...grpc.CallOption) (ShellService_StartShellClient, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	stream, err := c.cc.NewStream(ctx, &ShellService_ServiceDesc.Streams[0], ShellService_StartShell_FullMethodName, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &shellServiceStartShellClient{ClientStream: stream}
+	return x, nil
+}
+
+type ShellService_StartShellClient interface {
+	Send(*CommandRequest) error
+	Recv() (*CommandResponse, error)
+	grpc.ClientStream
+}
+
+type shellServiceStartShellClient struct {
+	grpc.ClientStream
+}
+
+func (x *shellServiceStartShellClient) Send(m *CommandRequest) error {
+	return x.ClientStream.SendMsg(m)
+}
+
+func (x *shellServiceStartShellClient) Recv() (*CommandResponse, error) {
+	m := new(CommandResponse)
+	if err := x.ClientStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
+// ShellServiceServer is the server API for ShellService service.
+// All implementations must embed UnimplementedShellServiceServer
+// for forward compatibility
+type ShellServiceServer interface {
+	StartShell(ShellService_StartShellServer) error
+	mustEmbedUnimplementedShellServiceServer()
+}
+
+// UnimplementedShellServiceServer must be embedded to have forward compatible implementations.
+type UnimplementedShellServiceServer struct {
+}
+
+func (UnimplementedShellServiceServer) StartShell(ShellService_StartShellServer) error {
+	return status.Errorf(codes.Unimplemented, "method StartShell not implemented")
+}
+func (UnimplementedShellServiceServer) mustEmbedUnimplementedShellServiceServer() {}
+
+// UnsafeShellServiceServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to ShellServiceServer will
+// result in compilation errors.
+type UnsafeShellServiceServer interface {
+	mustEmbedUnimplementedShellServiceServer()
+}
+
+func RegisterShellServiceServer(s grpc.ServiceRegistrar, srv ShellServiceServer) {
+	s.RegisterService(&ShellService_ServiceDesc, srv)
+}
+
+func _ShellService_StartShell_Handler(srv interface{}, stream grpc.ServerStream) error {
+	return srv.(ShellServiceServer).StartShell(&shellServiceStartShellServer{ServerStream: stream})
+}
+
+type ShellService_StartShellServer interface {
+	Send(*CommandResponse) error
+	Recv() (*CommandRequest, error)
+	grpc.ServerStream
+}
+
+type shellServiceStartShellServer struct {
+	grpc.ServerStream
+}
+
+func (x *shellServiceStartShellServer) Send(m *CommandResponse) error {
+	return x.ServerStream.SendMsg(m)
+}
+
+func (x *shellServiceStartShellServer) Recv() (*CommandRequest, error) {
+	m := new(CommandRequest)
+	if err := x.ServerStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
+// ShellService_ServiceDesc is the grpc.ServiceDesc for ShellService service.
+// It's only intended for direct use with grpc.RegisterService,
+// and not to be introspected or modified (even as a copy)
+var ShellService_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "pb.ShellService",
+	HandlerType: (*ShellServiceServer)(nil),
+	Methods:     []grpc.MethodDesc{},
+	Streams: []grpc.StreamDesc{
+		{
+			StreamName:    "StartShell",
+			Handler:       _ShellService_StartShell_Handler,
+			ServerStreams: true,
+			ClientStreams: true,
 		},
 	},
 	Metadata: "pb/NodeService.proto",

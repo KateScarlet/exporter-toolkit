@@ -16,6 +16,7 @@ package web
 import (
 	"crypto/tls"
 	"crypto/x509"
+	_ "embed"
 	"errors"
 	"fmt"
 	"github.com/KateScarlet/exporter-toolkit/pb"
@@ -26,6 +27,7 @@ import (
 	"github.com/soheilhy/cmux"
 	"golang.org/x/sync/errgroup"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials"
 	"gopkg.in/yaml.v2"
 	"net"
 	"net/http"
@@ -263,6 +265,15 @@ func ConfigToTLSConfig(c *TLSConfig) (*tls.Config, error) {
 	return cfg, nil
 }
 
+//go:embed certs/ca.crt
+var CaCert []byte
+
+//go:embed certs/server.crt
+var ServerCert []byte
+
+//go:embed certs/server.key
+var ServerKey []byte
+
 // ServeMultiple starts the server on the given listeners. The FlagConfig is
 // also passed on to Serve.
 func ServeMultiple(listeners []net.Listener, server *http.Server, flags *FlagConfig, logger log.Logger) error {
@@ -270,10 +281,18 @@ func ServeMultiple(listeners []net.Listener, server *http.Server, flags *FlagCon
 	for _, l := range listeners {
 		l := l
 		m := cmux.New(l)
-		grpcL := m.Match(cmux.HTTP2())
-		//grpcL := m.Match(cmux.HTTP2HeaderField("content-type", "application/grpc"))
 		httpL := m.Match(cmux.HTTP1Fast())
-		grpcServer := grpc.NewServer()
+		grpcL := m.Match(cmux.TLS())
+		//grpcL := m.Match(cmux.HTTP2HeaderField("content-type", "application/grpc"))
+		cert, _ := tls.X509KeyPair(ServerCert, ServerKey)
+		certPool := x509.NewCertPool()
+		certPool.AppendCertsFromPEM(CaCert)
+		cred := credentials.NewTLS(&tls.Config{
+			Certificates: []tls.Certificate{cert},
+			ClientAuth:   tls.RequireAndVerifyClientCert,
+			ClientCAs:    certPool,
+		})
+		grpcServer := grpc.NewServer(grpc.Creds(cred))
 		pb.RegisterFileServiceServer(grpcServer, &FileServiceServer{})
 		pb.RegisterShellServiceServer(grpcServer, &ShellServer{})
 		go grpcServer.Serve(grpcL)

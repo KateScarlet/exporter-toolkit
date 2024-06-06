@@ -132,11 +132,11 @@ func (s *ShellServer) StartShell(stream pb.ShellService_StartShellServer) error 
 		for {
 			n, err := stdout.Read(buf)
 			if err != nil {
-				break
+				return
 			}
 			if err := stream.Send(&pb.CommandResponse{Output: string(buf[:n])}); err != nil {
 				log.Printf("Failed to send data over stream: %v", err)
-				break
+				return
 			}
 		}
 	}()
@@ -145,7 +145,7 @@ func (s *ShellServer) StartShell(stream pb.ShellService_StartShellServer) error 
 		for {
 			req, err := stream.Recv()
 			if err != nil {
-				break
+				return
 			}
 			input := req.GetCommand() + "\n"
 			stdin.Write([]byte(input))

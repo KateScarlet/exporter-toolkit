@@ -5,6 +5,7 @@ go 1.18
 require (
 	github.com/alecthomas/kingpin/v2 v2.4.0
 	github.com/coreos/go-systemd/v22 v22.5.0
+	github.com/creack/pty v1.1.21
 	github.com/go-kit/log v0.2.1
 	github.com/prometheus/common v0.45.0
 	golang.org/x/crypto v0.21.0
